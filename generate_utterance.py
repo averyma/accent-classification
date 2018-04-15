@@ -1,6 +1,7 @@
 from pydub import AudioSegment
 from pydub.silence import split_on_silence
 from python_speech_features import fbank
+from python_speech_features import mfcc
 from python_speech_features import delta
 import scipy.io.wavfile
 import csv
@@ -9,9 +10,9 @@ import numpy as np
 # define input/output parameters
 csv_file_path = "/home/averyma/accent-classification/cv-valid-train.csv"
 audio_file_path = "/home/averyma/accent-classification/"
-output_path = '/home/averyma/accent-classification/'
-accent_label = 'us'
-feature_type = 'mfsc'
+output_path = '/home/averyma/accent-classification/mfcc_float16/'
+accent_label = 'aus'
+feature_type = 'mfcc'
 section_len_threshold = 500 # only non-silent section>500ms will be considered
 fs = 48000 # sample_rate
 window_len = 7 # corresponds to a context window of 15 frames
@@ -19,6 +20,7 @@ accent_path = []
 utterance = []
 
 # read csv file
+print("Reading csv file...")
 with open(csv_file_path, newline='') as file:
     reader = csv.reader(file)
     for row in reader:
@@ -43,21 +45,37 @@ for num, sample_path in enumerate(accent_path):
             if len(section) > section_len_threshold:
                 # convert pydub.AudioSegment object to wav, which python_speech_feature packages uses
                 wav = np.fromstring(section._data, dtype = np.int16)
-                # extract static features:
-                feature, energy = fbank(signal = wav, 
-                                        samplerate = fs,
-                                        winlen = 0.025, 
-                                        winstep = 0.01,
-                                        nfilt = 40, 
-                                        nfft = 512,  
-                                        lowfreq = 0, 
-                                        highfreq = fs/2,
-                                        preemph = 0.97,
-                                        winfunc = np.hamming)
-                # the feature here is size(frames, nfilt): (700,40)
-                log_feature = np.log(feature) 
+                # extract static features: (np.float64)
+                if feature_type == 'mfsc':
+                    feature, energy = fbank(signal = wav, 
+                                            samplerate = fs,
+                                            winlen = 0.025, 
+                                            winstep = 0.01,
+                                            nfilt = 40, 
+                                            nfft = 512,  
+                                            lowfreq = 0, 
+                                            highfreq = fs/2,
+                                            preemph = 0.97,
+                                            winfunc = np.hamming)
+                    # log fbank -> MFSC: size(frames, nfilt)
+                    feature = np.log(feature)
+                elif feature_type == 'mfcc':
+                    feature = mfcc( signal = wav, 
+                                    samplerate = fs,
+                                    winlen = 0.025, 
+                                    winstep = 0.01,
+                                    numcep = 40,
+                                    nfilt = 40, 
+                                    nfft = 512,  
+                                    lowfreq = 0, 
+                                    highfreq = fs/2,
+                                    preemph = 0.97,
+                                    ceplifter = 22,
+                                    appendEnergy = False,
+                                    winfunc = np.hamming)
+
                 # zero mean/unit variance
-                static_feature = (log_feature - np.mean(log_feature, axis = 0))/np.std(log_feature,axis = 0)
+                static_feature = (feature - np.mean(feature, axis = 0))/np.std(feature,axis = 0)
                 # extract delta of the static features
                 d_feature = delta(static_feature,2)
                 # extract delta-delta
@@ -69,7 +87,7 @@ for num, sample_path in enumerate(accent_path):
                                                                     d_feature[i-window_len:i+window_len+1],
                                                                     dd_feature[i-window_len:i+window_len+1])))
                     # append to utterance list
-                    utterance.append(np.int8(section_utterance))
+                    utterance.append(np.float16(section_utterance))
 
 # turn utterance list to np.ndarray
 utterance = np.array(utterance)
