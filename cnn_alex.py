@@ -5,6 +5,7 @@ from keras.datasets import mnist
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten
 from keras.layers import Conv2D, MaxPooling2D
+from keras.callbacks import EarlyStopping
 from keras import backend as K
 
 # Read 
@@ -21,7 +22,7 @@ dev_label = np.load( path + 'dev_label.npy')
 # Training Parameters
 batch_size = 128
 num_classes = 2
-epochs = 30
+epochs = 15
 
 # input utterance frame dimensions
 utt_rows, utt_cols = 40, 45
@@ -43,13 +44,14 @@ test_label = keras.utils.to_categorical(test_label, num_classes)
 dev_label = keras.utils.to_categorical(dev_label, num_classes)
 
 model = Sequential()
+#--------- Define network structure here: ---------#
 model.add(Conv2D(32, kernel_size=(3, 3),
-				      # strides = (2, 1),
+              # strides = (2, 1),
                       activation='relu',
                       input_shape=input_shape))
 model.add(MaxPooling2D(pool_size=(2,2)))
 model.add(Conv2D(64, kernel_size = (3, 3), 
-					 activation='relu'))
+           activation='relu'))
 model.add(MaxPooling2D(pool_size=(2,2)))
 model.add(Dropout(0.25))
 model.add(Flatten())
@@ -57,10 +59,16 @@ model.add(Dense(1000, activation='relu'))
 model.add(Dense(1000, activation='relu'))
 model.add(Dropout(0.25))
 model.add(Dense(num_classes, activation='softmax'))
-
+#---------------------------------------------------#
 model.compile(loss=keras.losses.categorical_crossentropy,
               optimizer=keras.optimizers.Adadelta(),
               metrics=['accuracy'])
+
+es = [EarlyStopping(monitor='val_acc',
+                    patience=2,
+                    verbose=0,
+                    min_delta=0,
+                    mode='auto')]
 
 print(model.summary())
 
@@ -68,6 +76,7 @@ model.fit(train_data, train_label,
           batch_size=batch_size,
           epochs=epochs,
           verbose=1,
+          callbacks = es,
           validation_data=(dev_data, dev_label))
 
 score = model.evaluate(test_data, test_label, verbose=0)
