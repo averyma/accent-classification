@@ -1,14 +1,15 @@
+% after running the generate_feature script in ipython.
+% you can use this script to plot the mfcc/mfsc features
+
 clc
 clear
 
 % load mfcc feature
 mfcc = load('mfcc_feature.mat');
-mfcc = mfcc.utterance;
-mfcc = cell2mat(mfcc(3))';
+mfcc = mfcc.feature';
 % load mfcs feature
 mfsc = load('mfsc_feature.mat');
-mfsc = mfsc.utterance;
-mfsc = cell2mat(mfsc(3))';
+mfsc = mfsc.feature';
 % load corresponding audio file
 file = '/Users/ama/git-repo/accent-classification/cv-valid-test/sample-000022.mp3';
 [sample,fs] = audioread(file);
