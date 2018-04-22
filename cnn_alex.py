@@ -9,7 +9,9 @@ from keras.callbacks import EarlyStopping
 from keras import backend as K
 
 # Read 
-path = '/home/averyma/accent-classification/mfsc_float16/us_uk_mfsc/'
+feature = 'mfcc' # <--- feature type: mfcc or mfcs
+accent = 'us_uk_can_ind_aus' # <--- accents being classified
+path = '/home/averyma/accent-classification/'+feature+'_float16/'+accent+'_'+feature+'/'
 train_data = np.load( path + 'train_data.npy')
 train_label = np.load( path + 'train_label.npy')
 
@@ -21,8 +23,8 @@ dev_label = np.load( path + 'dev_label.npy')
 
 # Training Parameters
 batch_size = 128
-num_classes = 2
-epochs = 15
+num_classes = 5 # <--- adjusting this value for the number of accents
+epochs = 30
 
 # input utterance frame dimensions
 utt_rows, utt_cols = 40, 45
@@ -65,7 +67,7 @@ model.compile(loss=keras.losses.categorical_crossentropy,
               metrics=['accuracy'])
 
 es = [EarlyStopping(monitor='val_acc',
-                    patience=2,
+                    patience=3,
                     verbose=0,
                     min_delta=0,
                     mode='auto')]
