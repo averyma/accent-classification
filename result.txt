@@ -1,0 +1,72 @@
+----------------------------------------------------------------------
+net1:
+
+model.add(Conv2D(32, kernel_size=(3, 3),
+              # strides = (2, 1),
+                      activation='relu',
+                      input_shape=input_shape))
+model.add(MaxPooling2D(pool_size=(2,2)))
+model.add(Conv2D(64, kernel_size = (3, 3), 
+           activation='relu'))
+model.add(MaxPooling2D(pool_size=(2,2)))
+model.add(Dropout(0.25))
+model.add(Flatten())
+model.add(Dense(1000, activation='relu'))
+model.add(Dense(1000, activation='relu'))
+model.add(Dropout(0.25))
+model.add(Dense(num_classes, activation='softmax'))
+----------------------------------------------------------------------
+net2:
+
+model.add(Conv2D(32, kernel_size=(5, 5),
+              # strides = (2, 1),
+                      activation='relu',
+                      input_shape=input_shape))
+model.add(MaxPooling2D(pool_size=(2,2)))
+model.add(Conv2D(64, kernel_size = (5, 5), 
+           activation='relu'))
+model.add(MaxPooling2D(pool_size=(2,2)))
+model.add(Dropout(0.25))
+model.add(Flatten())
+model.add(Dense(1000, activation='relu'))
+model.add(Dense(1000, activation='relu'))
+model.add(Dropout(0.25))
+model.add(Dense(num_classes, activation='softmax'))
+----------------------------------------------------------------------
+net3:
+
+model.add(Conv2D(32, kernel_size=(3, 3),
+              # strides = (2, 1),
+                      activation='relu',
+                      input_shape=input_shape))
+model.add(MaxPooling2D(pool_size=(2,2)))
+model.add(Conv2D(64, kernel_size = (3, 3), 
+           activation='relu'))
+model.add(MaxPooling2D(pool_size=(2,2)))
+model.add(Conv2D(128, kernel_size = (3, 3), 
+           activation='relu'))
+model.add(Dropout(0.25))
+model.add(Flatten())
+model.add(Dense(1000, activation='relu'))
+model.add(Dense(1000, activation='relu'))
+model.add(Dropout(0.25))
+model.add(Dense(num_classes, activation='softmax'))
+----------------------------------------------------------------------
+classification results:
+
+id/mfcc(train/val/test acc.)/mfsc(train/val/test acc.)
+
+us-uk:
+1 & 68.5 / 65.1 / 65.1  & 76.6 / 78.5 / 78.6 \\ \hline
+2 & 62.5 / 61.3 / 61.4  & 70.1 / 69.3 / 69.8 \\ \hline
+3 & 72.3 / 72.1 / 72.0  & \textbf{80.4 / 80.6 / 80.7} \\ \hline
+
+ind-aus:
+1 & 97.2 / 96.6 / 96.6 & \textbf{99.1 / 99.2 / 99.2} \\ \hline
+2 & 96.5 / 95.9 / 95.9 & 98.0 / 98.1 / 98.1 \\ \hline
+3 & 97.9 / 96.7 / 96.5 & 98.9 / 97.8 / 97.8 \\ \hline
+
+us-uk-can-ind-aus:
+1 & 52.5 / 54.2 / 54.1  & 68.7 / 72.4 / 72.4 \\ \hline
+2 & 46.3 / 45.8 / 45.8  & 62.4 / 64.8 / 64.8 \\ \hline
+3 & 60.3 / 60.9 / 60.4  & \textbf{74.3 / 75.7 / 75.7}  \\ \hline
