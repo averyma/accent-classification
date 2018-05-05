@@ -9,7 +9,7 @@ from keras.callbacks import EarlyStopping
 from keras import backend as K
 
 # Read 
-feature = 'mfcc' # <--- feature type: mfcc or mfcs
+feature = 'mfcc' # <--- feature type: mfcc or mfsc
 accent = 'us_uk_can_ind_aus' # <--- accents being classified
 path = '/home/averyma/accent-classification/'+feature+'_float16/'+accent+'_'+feature+'/'
 train_data = np.load( path + 'train_data.npy')
@@ -55,6 +55,8 @@ model.add(MaxPooling2D(pool_size=(2,2)))
 model.add(Conv2D(64, kernel_size = (3, 3), 
            activation='relu'))
 model.add(MaxPooling2D(pool_size=(2,2)))
+model.add(Conv2D(128, kernel_size = (3, 3), 
+           activation='relu'))
 model.add(Dropout(0.25))
 model.add(Flatten())
 model.add(Dense(1000, activation='relu'))
